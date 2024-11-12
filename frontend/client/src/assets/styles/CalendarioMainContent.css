@@ -1,0 +1,150 @@
+.calendar-main-content {
+  display: flex;
+  flex-direction: column;
+  margin-left: 160px;
+  margin-top: 20px;
+  padding-left: 20px;
+  transition: 0.15s;
+}
+
+.calendar-main-content.full-width {
+  margin-left: 0;
+}
+
+.calendar-main-content.full-width .event-container {
+  width: 300px;
+}
+
+.calendar-main-content.full-width .calendar-container {
+  width: 1300px;
+}
+
+.calendar-wrapper {
+  display: flex;
+  align-items: flex-start;
+  margin-right: 20px;
+}
+
+.calendar-container {
+  background-color: #eff0f9;
+  color: black;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 1px 1px 5px rgb(84, 84, 84);
+  height: 680px;
+  width: 1070px;
+  padding-bottom: 30px;
+  flex: 1;
+}
+
+.event-inputs {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  top: -120px;
+  left: -20px;
+}
+
+.event-inputs li {
+  margin-bottom: 35px;
+}
+
+input {
+  box-shadow: 1px 1px 5px rgb(84, 84, 84);
+  border-radius: 6px;
+  height: 20px;
+  padding: 10px;
+  width: 250px;
+}
+
+.event-inputs input,
+.event-inputs select {
+  height: 40px;
+}
+
+select {
+  box-shadow: 1px 1px 5px rgb(84, 84, 84);
+  border-radius: 6px;
+  height: 20px;
+  padding: 10px;
+  width: 250px;
+}
+
+.create-event {
+  position: fixed;
+  bottom: 60px;
+  border-radius: 6px;
+  right: 30%;
+  padding: 10px 50px;
+  box-shadow: 1px 1px 5px rgb(84, 84, 84);
+  cursor: pointer;
+}
+
+.fc {
+  margin-top: 20px;
+  height: 100%;
+  width: 95%;
+  --fc-border-color: rgb(168, 168, 168);
+  --fc-today-bg-color: rgba(93, 147, 192, 0.3);
+}
+
+.fc-event-block {
+  background-color: #007bff;
+  color: #ffffff;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+.fc-event-list-item {
+  background-color: #ffffff;
+  color: #000000;
+  border-radius: 4px;
+  padding: 4px;
+  border: 1px solid #ddd;
+}
+
+.fc-header-toolbar {
+  position: relative;
+}
+
+.trash-icon-event {
+  position: absolute;
+  top: 112px;
+  right: 1050px;
+  background-color: rgb(40, 50, 67, 0.3);
+  padding: 8px 20px;
+  border-radius: 5px;
+}
+
+.dark .calendar-container {
+  background: #273142;
+  color: #ffffff;
+  box-shadow: 1px 1px 5px rgb(0, 0, 0);
+}
+
+.dark .event-container {
+  background: #273142;
+  color: #ffffff;
+  box-shadow: 1px 1px 5px rgb(0, 0, 0);
+}
+
+.dark .fc-more-popover {
+  color: black;
+}
+
+.dark .calendar-wrapper {
+  background-color: #273142;
+  color: #ffffff;
+}
+
+.dark .trash-icon-event {
+  background-color: rgb(239, 240, 249, 0.3);
+  padding: 8px 20px;
+  border-radius: 5px;
+}
+
+.dark .popover {
+  color: black;
+}

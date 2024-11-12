@@ -1,0 +1,28 @@
+{
+  "name": "projscrum",
+  "version": "1.0.0",
+  "description": "ProjScrum é um projeto desenvolvido para aplicar o conhecimento adquirido na disciplina de Engenharia de Software Aplicada, oferecida pela Universidade Unisagrado. O objetivo principal é criar um site de gerenciamento Scrum.",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "keywords": [
+    "MySQL",
+    "Scrum",
+    "React",
+    "Node"
+  ],
+  "author": "Raphael Camurri Michelassi, Lucas Pomini Galli, Pedro Antônio de Souza Rezende, Victor Hugo de Deus Machado, Pedro Lucas Franco, Pedro Marques Correa Domingues",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "express-fileupload": "^1.5.1",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.11.3",
+    "nodemon": "^3.1.7"
+  }
+}

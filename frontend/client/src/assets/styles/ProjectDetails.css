@@ -1,0 +1,319 @@
+.project-details-container {
+  display: flex;
+  flex-direction: column;
+  margin-left: 160px;
+  margin-top: 30px;
+  padding: 20px;
+}
+
+.project-details-container.full-width {
+  margin-left: 0;
+}
+
+.project-details-container.full-width .select-sprint {
+  margin-left: 50px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 0px;
+}
+
+.create-button {
+  z-index: 1;
+  margin-right: 20px;
+}
+
+.end-sprint {
+  z-index: 1;
+  display: inline-block;
+  background-color: #eff0f9;
+  border-radius: 5px;
+  border: 2px solid red;
+  box-shadow: 1px 1px 5px rgb(84, 84, 84);
+  font-size: 25px;
+  padding: 3px 7px;
+  margin-top: -5px;
+  width: 200px;
+  margin-bottom: 35px;
+  align-self: flex-end;
+  transition: 0.15s;
+  cursor: pointer;
+}
+
+.select-sprint {
+  display: flex;
+  align-items: center;
+  width: 200px;
+  border-radius: 5px;
+  margin-top: -75px;
+  padding: 5px;
+  height: 30px;
+  box-shadow: 1px 1px 5px rgb(84, 84, 84);
+  cursor: pointer;
+}
+
+.no-sprints-message {
+  margin-top: 5px;
+}
+
+.avatar-group {
+  display: flex;
+  height: 5px;
+  margin-bottom: 0px;
+  margin-left: 345px;
+}
+
+.project-details-container.full-width .avatar-group {
+  margin-left: 350px;
+}
+
+.sprints-list {
+  height: 0px;
+  margin-top: 20px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.project-details-container.full-width .sprints-list {
+  margin-left: 50px;
+}
+
+.daily-container {
+  height: 580px;
+}
+
+.daily-header {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: #eff0f9;
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 1px 1px 5px rgb(84, 84, 84, 0.4);
+  margin-top: 65px;
+}
+
+.daily-header div {
+  padding: 7px;
+  border-radius: 5px;
+  border: 1px solid rgb(0, 0, 0, 0.2);
+  background-color: rgb(212, 215, 230, 0.4);
+}
+
+.daily-cards {
+  margin-top: 30px;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.daily-cards div::-webkit-scrollbar {
+  width: 5px;
+  height: 10px;
+}
+
+.daily-cards div::-webkit-scrollbar-thumb {
+  background-color: #273142;
+  border-radius: 10px;
+}
+
+.daily-cards div::-webkit-scrollbar-thumb:hover {
+  background-color: #1b2431;
+}
+
+.daily-cards div::-webkit-scrollbar-track {
+  background-color: #d4d7e6;
+  border-radius: 10px;
+}
+
+.daily-cards div {
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.daily-card {
+  margin-bottom: 20px;
+  border-radius: 5px;
+  padding: 10px;
+  background: #eff0f9;
+  box-shadow: 1px 1px 5px rgb(84, 84, 84, 0.4);
+  height: 200px;
+  width: 100px;
+  box-sizing: border-box;
+}
+
+.daily-card .trash-icon {
+  margin-right: 30px;
+  float: right;
+  cursor: pointer;
+}
+
+.daily-card h2 {
+  margin-bottom: 40px;
+}
+
+.daily-card p {
+  margin-bottom: 50px;
+}
+
+.daily-card p:last-child {
+  margin-bottom: -10px;
+  font-size: 14px;
+}
+
+.sprint-inputs input,
+.sprint-inputs select,
+.daily-inputs input,
+.daily-inputs select,
+.evaluation-inputs input,
+.evaluation-inputs select {
+  height: 40px;
+}
+
+.sprint-inputs,
+.daily-inputs,
+.evaluation-inputs {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  top: -115px;
+  left: -20px;
+}
+
+.sprint-inputs li,
+.daily-inputs li,
+.evaluation-inputs li {
+  margin-bottom: 35px;
+}
+
+.create-sprint,
+.create-daily,
+.submit-evaluation {
+  position: fixed;
+  bottom: 60px;
+  border-radius: 6px;
+  right: 35.5%;
+  padding: 10px 50px;
+  box-shadow: 1px 1px 5px rgb(84, 84, 84);
+  cursor: pointer;
+}
+
+.submit-evaluation {
+  right: 30.6%;
+}
+
+.pending-container,
+.in-progress-container,
+.completed-container {
+  display: block;
+  flex-direction: column;
+  align-items: stretch;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  padding: 10px;
+  max-height: 450px;
+  box-sizing: border-box;
+}
+
+.modal-delete-daily {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  top: -120px;
+  left: -20px;
+  height: 30px;
+}
+
+.buttons-container {
+  margin-top: 30px;
+  margin-left: 19%;
+}
+
+.delete-confirm,
+.delete-cancel {
+  margin-bottom: 20px;
+  margin-left: 15px;
+  color: #fff;
+  padding: 15px 25px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.delete-confirm {
+  background-color: #4caf50;
+}
+
+.delete-cancel {
+  background-color: #e74c3c;
+}
+
+.dark .project-details-container .create-button {
+  background: #273142;
+  color: #ffffff;
+  box-shadow: 1px 1px 5px black;
+}
+
+.dark .project-details-container .end-sprint {
+  background: #273142;
+  color: #ffffff;
+  border: 2px solid rgb(196, 0, 0);
+  box-shadow: 1px 1px 5px black;
+}
+
+.dark .daily-header {
+  background-color: #273142;
+  box-shadow: 1px 1px 5px black;
+}
+
+.dark .daily-header p {
+  color: #ffffff;
+}
+
+.dark .daily-header div {
+  background-color: #1b2431;
+  color: #ffffff;
+}
+
+.dark .select-sprint {
+  background-color: #273142;
+  box-shadow: 1px 1px 5px black;
+  color: #ffffff;
+}
+
+.dark .daily-cards div {
+  color: #ffffff;
+}
+
+.dark .daily-card {
+  background-color: #273142;
+  box-shadow: 1px 1px 5px black;
+}
+
+.dark .sprints-list {
+  color: #ffffff;
+}
+
+.dark .daily-cards div::-webkit-scrollbar {
+  width: 5px;
+  height: 10px;
+}
+
+.dark .daily-cards div::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 10px;
+}
+
+.dark .daily-cards div::-webkit-scrollbar-thumb:hover {
+  background-color: #aaa;
+}
+
+.dark .daily-cards div::-webkit-scrollbar-track {
+  background-color: #1b2431;
+  border-radius: 10px;
+}
