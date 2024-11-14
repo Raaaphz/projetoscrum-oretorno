@@ -1,4 +1,4 @@
-import express from "express";
+import express, { json } from "express";
 import cors from "cors";
 import mysql from "mysql2";
 import jwt from 'jsonwebtoken';
@@ -34,21 +34,6 @@ conexao.connect((err) => {
 });
 
 // #region USUARIOS
-function verificarToken(req, res, next) {
-    const token = req.cookies.auth_token; //Ler o token
-
-    if(!token) {
-        return res.status(403).send('Token não encontrado, acesso negado!');
-    }
-
-    try {
-        const decoded = jwt.verify(token, 'segredo'); //Decodificar o token
-        req.user = decoded; // Passar infos pro proximo middleware
-        next();
-    } catch (err) {
-        return res.status(401).send('Token inválido');
-    }
-}
 
 //Rota para cadastro de Usuario
 app.post("/cadastrarUser", function(req, res){
@@ -254,8 +239,8 @@ app.delete('/deletarUsuario', function(req, res) {
     if (!req.body.senha) {
         return res.status(400).send({ mensagem: 'Senha não fornecida.' });
     }
-// Consulta para buscar a senha no banco de dados
-conexao.query(selecSenha, [req.body.codigoUser], (error, results) => {
+    // Consulta para buscar a senha no banco de dados
+    conexao.query(selecSenha, [req.body.codigoUser], (error, results) => {
     if (error) {
         console.error('Erro ao consultar o banco de dados:', error);
         return res.status(500).send({ mensagem: 'Erro interno ao consultar o banco de dados' });
@@ -302,9 +287,88 @@ conexao.query(selecSenha, [req.body.codigoUser], (error, results) => {
 });
 // #endregion
 
+//#region PROJETOS
+
+function verificarToken(req, res, next) {
+    const token = req.cookies.auth_token; // Lê o token
+    console.log('Token recebido:', token); // Log para verificar o token recebido
+
+    if (!token) {
+        console.log('Token não encontrado, acesso negado'); // Log de erro caso o token não esteja presente
+        return res.status(403).send('Token não encontrado, acesso negado!');
+    }
+
+    try {
+        const decoded = jwt.verify(token, 'segredo'); // Decodifica o token
+        console.log('Token decodificado com sucesso:', decoded); // Log para confirmar que o token foi decodificado com sucesso
+        req.user = decoded; // Passa as informações para o próximo middleware
+        next();
+    } catch (err) {
+        console.error('Erro ao decodificar o token:', err); // Log de erro caso o token seja inválido
+        return res.status(401).send('Token inválido');
+    }
+}
+
+// Atualize a rota para buscar projetos do usuário logado
+app.get('/getProjetos', verificarToken, (req, res) => {
+    const codigoUser = req.user.codigoUser; // Recupera `codigoUser` do token
+    console.log('Token decodificado - código do usuário:', codigoUser); // Log de confirmação
+
+    const selectProj = 'SELECT * FROM projetos WHERE codigoUser = ?';
+    conexao.query(selectProj, [codigoUser], (err, data) => {
+        if (err) {
+            console.error('Erro ao consultar projetos:', err); // Log de erro ao consultar projetos
+            return res.status(500).json({ error: 'Erro ao buscar projetos' });
+        }
+
+        console.log('Projetos encontrados:', data); // Log para confirmar que projetos foram encontrados
+        return res.status(200).json(data);
+    });
+});
+
+app.post('/criarProj', verificarToken, (req, res) => {
+    const { nome, descricao, dataEntrega } = req.body;
+    const codigoUser = req.user.codigoUser; // Recupera o `codigoUser` do usuário autenticado
+
+    // Logs para verificar os valores recebidos
+    console.log('Dados recebidos do cliente:', { nome, descricao, dataEntrega });
+    console.log('Token decodificado - código do usuário:', codigoUser); // Log de confirmação
+
+    // Insere os dados no banco usando o `codigoUser` obtido
+    const sqlInsert = "INSERT INTO projetos (nome, descricao, dataEntrega, codigoUser) VALUES (?, ?, ?, ?)";
+    conexao.query(sqlInsert, [nome, descricao, dataEntrega, codigoUser], (erro, retorno) => {
+        if (erro) {
+            console.error('Erro ao criar projeto:', erro);
+            return res.status(500).json({ error: 'Erro ao criar projeto' });
+        }
+
+        console.log('Projeto criado com sucesso. ID do retorno:', retorno.insertId);
+        res.status(200).json({ message: 'Projeto criado com sucesso', idProjeto: retorno.insertId });
+    });
+});
+
+app.delete('/deletarProj', function(req, res){
+    console.log('Dados recebidos:', req.body);
+    const deleteProj = "DELETE FROM projetos WHERE `codigoProj` = ?";
+  
+    const codigoProj = req.body.codigoProj;
+  
+    if(!codigoProj){
+        return res.status(400).json({ mensagem: "Código de usuário não fornecido" });
+    }
+  
+    conexao.query(deleteProj, [codigoProj], (err) => {
+        if (err) {
+            return res.status(500).json(err);
+        }
+  
+        return res.status(200).json("Projeto deletado com sucesso.");
+    });
+  });  
+
+//#endregion
 
 // Inicia o servidor na porta 3000
 app.listen(3000, () => {
     console.log("Servidor rodando na porta 3000.");
 });
-
