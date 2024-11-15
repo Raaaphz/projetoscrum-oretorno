@@ -366,6 +366,116 @@ app.delete('/deletarProj', function(req, res){
 
 //#endregion
 
+//#region SPRINT
+
+app.get('/getSprints', function(req, res){
+    const codigoProj = req.body.codigoProj;
+    const selectSprint = 'SELECT * FROM sprints WHERE codigoProj = ?';
+
+    conexao.query(selectSprint, [codigoProj], (err, data) => {
+        if(err) {
+            console.error ('Erro ao consultar sprints:', err);
+            return res.status(500).json ({ error: 'Erro ao buscar sprints'});
+        }
+
+        console.log('Sprints encontradas');
+        return res.status(200).json(data);
+    });
+});
+
+app.post('/addSprint', function(req,res) {
+    const { nome, dataEntrega } = req.body
+    const codigoProj = req.body.codigoProj
+
+    console.log('Dados recebidos do cliente: ', {nome, dataEntrega, codigoProj});
+
+    const sqlInsert = "INSERT INTO sprints (nome, dataEntrega) VALUES (?, ?)";
+
+    conexao.query(sqlInsert, [nome, dataEntrega, codigoProj], (erro, retorno) =>{
+        if(erro) {
+            console.error('Erro ao criar sprint:', erro);
+            return res.status(500).json({ error: 'Erro ao criar sprint'});
+        }
+
+        console.log('Sprint adicionada com sucesso.');
+        res.status(200).json({message:'Sprint adicionada com sucesso'})
+    });
+});
+
+app.delete('/deletarSprint', function(req, res) {
+    const deleteSprint = "DELETE FROM sprints WHERE `codigoSprint` = ?";
+
+    const codigoSprint = req.body.codigoSprint;
+
+    if(!codigoSprint){
+        return res.status(400).json ({mensagem:"Código não fornecido"});
+    }
+
+    conexao.query(deleteSprint, [codigoSprint], (err) =>{
+        if(err) {
+            return res.status(500).json(err);
+        }
+
+        return res.status(200).json("Sprint deletada com sucesso");
+    });
+});
+
+//#endregion
+
+//#region DAILY
+
+app.get('/getDaily', function(req,res){
+    const codigoSprint = req.body.codigoSprint;
+    const selectDaily = 'SELECT * FROM daily WHERE codigoSprint = ?';
+
+    conexao.query(selectDaily, [codigoSprint], (err, data) => {
+        if(err) {
+            console.error ('Erro ao consultar dailys:', err);
+            return res.status(500).json ({ error:'Erro ao buscar dailys'});
+        }
+
+        console.log('Dailys encontradas');
+        return res.status(200).json(data);
+    });
+});
+
+app.post('/addDailys', function(req,res){
+    const { nome, descricao, dataEntrega } = req.body;
+    const codigoSprint = req.body.codigoSprint;
+
+    const sqlInsert = "INSERT INTO dailys (nome, descricao, dataEntrega) VALUES (?, ?, ?)";
+
+    conexao.query(sqlInsert, [nome, descricao, dataEntrega, codigoSprint], (erro, retorno) =>{
+        if(erro) {
+            console.error('Erro ao criar dailys:', erro);
+            return res.status(500).json({erro: 'Erro ao criar dailys'});
+        }
+
+        console.log('Daily adicionada com sucesso');
+        res.status(200).json({message:'Daily adicionada com sucesso'});
+    });
+});
+
+app.delete('/deletarDaily', function(req, res) {
+    const deleteDaily = "DELETE FROM dailys WHERE `codigoDaily` = ?";
+
+    const codigoDaily = req.body.codigoDaily;
+
+    if(!codigoDaily){
+        return res.status(400).json ({mensagem: "Código não fornecido"});
+    }
+
+    conexao.query(deleteDaily, [codigoDaily], (err) =>{
+        if(err){
+            return res.status(500).json(err);
+        }
+
+        return res.status(200).json("Daily deletada com sucesso");
+    });
+});
+
+//#endregion
+
 //#region CALENDARIO
 
 app.get('/getEventos', verificarToken, (req, res) => {
