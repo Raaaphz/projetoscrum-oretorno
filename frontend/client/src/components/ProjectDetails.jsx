@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import '../assets/styles/ProjectDetails.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons';
@@ -33,10 +34,31 @@ const ProjectDetails = ({ isNavbarVisible, project }) => {
     },
     endedSprints: [],
   });
+  const [projetos, setProjetos] = useState([]); // Estado para armazenar os projetos
+  const [loading, setLoading] = useState(true); // Estado de carregamento
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [dailyToDelete, setDailyToDelete] = useState(null);
   const [, updateState] = React.useState();
   const forceUpdate = React.useCallback(() => updateState({}), []);
+
+  const fetchProjetos = async () => {
+    try {
+      setLoading(true);
+
+      const response = await axios.get('http://localhost:3000/getProjetoByCode',{
+        
+      });
+      setProjetos(response.data); // Atualiza o estado com os projetos recebidos
+    } catch (error) {
+      console.error('Erro ao buscar projetos:', error);
+     } finally {
+      setLoading(false);
+     }
+  };
+
+  useEffect(() => {
+    fetchProjetos();
+  }, []);
 
   const handleDeleteDaily = (dailyId) => {
     setDailyToDelete(dailyId);

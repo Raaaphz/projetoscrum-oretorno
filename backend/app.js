@@ -33,6 +33,26 @@ conexao.connect((err) => {
     console.log("Conectado ao banco de dados MySQL.");
 });
 
+function verificarToken(req, res, next) {
+    const token = req.cookies.auth_token; // Lê o token
+    console.log('Token recebido:', token); // Log para verificar o token recebido
+
+    if (!token) {
+        console.log('Token não encontrado, acesso negado'); // Log de erro caso o token não esteja presente
+        return res.status(403).send('Token não encontrado, acesso negado!');
+    }
+
+    try {
+        const decoded = jwt.verify(token, 'segredo'); // Decodifica o token
+        console.log('Token decodificado com sucesso:', decoded); // Log para confirmar que o token foi decodificado com sucesso
+        req.user = decoded; // Passa as informações para o próximo middleware
+        next();
+    } catch (err) {
+        console.error('Erro ao decodificar o token:', err); // Log de erro caso o token seja inválido
+        return res.status(401).send('Token inválido');
+    }
+}
+
 // #region USUARIOS
 
 //Rota para cadastro de Usuario
@@ -289,27 +309,6 @@ app.delete('/deletarUsuario', function(req, res) {
 
 //#region PROJETOS
 
-function verificarToken(req, res, next) {
-    const token = req.cookies.auth_token; // Lê o token
-    console.log('Token recebido:', token); // Log para verificar o token recebido
-
-    if (!token) {
-        console.log('Token não encontrado, acesso negado'); // Log de erro caso o token não esteja presente
-        return res.status(403).send('Token não encontrado, acesso negado!');
-    }
-
-    try {
-        const decoded = jwt.verify(token, 'segredo'); // Decodifica o token
-        console.log('Token decodificado com sucesso:', decoded); // Log para confirmar que o token foi decodificado com sucesso
-        req.user = decoded; // Passa as informações para o próximo middleware
-        next();
-    } catch (err) {
-        console.error('Erro ao decodificar o token:', err); // Log de erro caso o token seja inválido
-        return res.status(401).send('Token inválido');
-    }
-}
-
-// Atualize a rota para buscar projetos do usuário logado
 app.get('/getProjetos', verificarToken, (req, res) => {
     const codigoUser = req.user.codigoUser; // Recupera `codigoUser` do token
     console.log('Token decodificado - código do usuário:', codigoUser); // Log de confirmação
@@ -321,7 +320,7 @@ app.get('/getProjetos', verificarToken, (req, res) => {
             return res.status(500).json({ error: 'Erro ao buscar projetos' });
         }
 
-        console.log('Projetos encontrados:', data); // Log para confirmar que projetos foram encontrados
+        console.log('Projetos encontrados'); // Log para confirmar que projetos foram encontrados
         return res.status(200).json(data);
     });
 });
@@ -348,13 +347,12 @@ app.post('/criarProj', verificarToken, (req, res) => {
 });
 
 app.delete('/deletarProj', function(req, res){
-    console.log('Dados recebidos:', req.body);
     const deleteProj = "DELETE FROM projetos WHERE `codigoProj` = ?";
   
     const codigoProj = req.body.codigoProj;
   
     if(!codigoProj){
-        return res.status(400).json({ mensagem: "Código de usuário não fornecido" });
+        return res.status(400).json({ mensagem: "Código não fornecido" });
     }
   
     conexao.query(deleteProj, [codigoProj], (err) => {
@@ -365,6 +363,65 @@ app.delete('/deletarProj', function(req, res){
         return res.status(200).json("Projeto deletado com sucesso.");
     });
   });  
+
+//#endregion
+
+//#region CALENDARIO
+
+app.get('/getEventos', verificarToken, (req, res) => {
+    const codigoUser = req.user.codigoUser; 
+    console.log('Token decodificado - código do usuário:', codigoUser);
+
+    const selectEvent = 'SELECT * FROM calendario WHERE codigoUser = ?';
+    conexao.query(selectEvent, [codigoUser], (err, data) => {
+        if(err) {
+            console.error('Erro ao consultar eventos:', err);
+            return res.status(500).json ({ error: 'Erro ao buscar eventos'});
+        }
+
+        console.log('Eventos encontrados');
+        return res.status(200).json(data);
+    });
+});
+
+app.delete('/deletarEvento', function(req, res){
+    const deleteEvento = "DELETE FROM calendario WHERE `codigoCalendario` = ?";
+
+    const codigoCalendario = req.body.codigoCalendario;
+
+    if(!codigoCalendario){
+        return res.status(400).json ({mensagem: "Código não fonecido" });
+    }
+
+    conexao.query(deleteEvento, [codigoCalendario], (err) => {
+        if (err) {
+            return res.status(500).json(err);
+        }
+
+        return res.status(200).json("Evento deletado com sucesso.");
+    });
+});
+
+app.post('/addEvento', verificarToken, (req, res) => {
+    const { titulo, descricao, dataInicio, dataTermino } = req.body;
+    const codigoUser = req.user.codigoUser; 
+
+
+    console.log('Dados recebidos do cliente: ', {titulo, descricao, dataInicio, dataTermino});
+    console.log('Token decodificado - código do usuário:', codigoUser);
+
+    const sqlInsert = "INSERT INTO calendario (titulo, descricao, dataInicio, dataTermino, codigoUser) VALUES (?, ?, ?, ?, ?)";
+
+    conexao.query(sqlInsert, [titulo, descricao, dataInicio, dataTermino, codigoUser], (erro, retorno) =>{
+        if(erro) {
+            console.error('Erro ao criar evento:', erro);
+            return res.status(500).json({ error: 'Erro ao criar evento'});
+        }
+
+        console.log('Evento adicionado com sucesso.')
+        res.status(200).json({ message: 'Evento adicionado com sucesso'})
+    });
+});
 
 //#endregion
 

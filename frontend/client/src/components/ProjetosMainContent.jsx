@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Adicionado import do axios
+import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark, faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import '../assets/styles/ProjetosMainContent.css';
@@ -10,6 +10,8 @@ import 'slick-carousel/slick/slick-theme.css';
 import { CustomPrevArrow, CustomNextArrow } from '../components/CustomArrows';
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { IMaskInput } from "react-imask";
+
 
 const ProjetosMainContent = ({ isNavbarVisible }) => {
   const [projetos, setProjetos] = useState([]); // Estado para armazenar os projetos
@@ -71,8 +73,7 @@ const ProjetosMainContent = ({ isNavbarVisible }) => {
             'Content-Type': 'application/json'
           },
           withCredentials: true, // Garantir que os cookies sejam enviados
-        }
-      );
+        });
 
       console.log('Resposta do servidor:', response.data);
       setOpenModal(false);
@@ -220,7 +221,9 @@ const ProjetosMainContent = ({ isNavbarVisible }) => {
             </li>
             <li>
               <p>Data de entrega</p>
-              <input type='text'
+              <IMaskInput
+                mask="00/00/0000"
+                type='text'
                 id='dataEntrega'
                 name='dataEntrega' />
             </li>

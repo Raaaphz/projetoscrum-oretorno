@@ -7,57 +7,141 @@ import interactionPlugin from '@fullcalendar/interaction';
 import Modal from './Modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import Cookies from 'js-cookie';
+import axios from 'axios';
 
 const CalendarioMainContent = ({ isNavbarVisible }) => {
+  const [calendario, setCalendario] = useState([]); // Estado para armazenar os projetos
   const [openModal, setOpenModal] = useState(false);
+  const [loading, setLoading] = useState(true); // Estado de carregamento
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
-  const [startTime, setStartTime] = useState('');
   const [endDate, setEndDate] = useState('');
   const calendarRef = useRef(null);
   const trashRef = useRef(null); // Referência para o ícone da lixeira
-
-  const handleAddEvent = () => {
-    let start = date;
-    if (startTime) {
-      start += `T${startTime}`;
+  
+  const handleAddEvent = async (e) => {
+    e.preventDefault();
+    
+    const titulo = document.getElementById('titulo').value;
+    const descricao = document.getElementById('descricao').value;
+    const dataInicio = document.getElementById('dataInicio').value;
+    const dataTermino = document.getElementById('dataTermino').value;
+  
+    // Obtém o token JWT do cookie usando js-cookie
+    const token = Cookies.get('auth_token');
+  
+    try {
+      // Envia os dados ao backend usando axios
+      const response = await axios.post('http://localhost:3000/addEvento', {
+        titulo: titulo,
+        descricao: descricao,
+        dataInicio: dataInicio,
+        dataTermino: dataTermino,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`, // Inclui o token JWT no header
+        },
+        withCredentials: true, // Garante que os cookies sejam enviados
+      });
+  
+      // Verifica se a resposta contém o código do evento salvo
+      const { codigoCalendario } = response.data;
+      
+      // Criação do evento para adicionar ao calendário
+      const newEvent = {
+        id: codigoCalendario, 
+        title: titulo,
+        start: dataInicio,
+        end: dataTermino,
+        extendedProps: {
+          description: descricao,
+        },
+      };
+  
+      // Adiciona o novo evento ao calendário
+      calendarRef.current.getApi().addEvent(newEvent);
+      
+      setOpenModal(false);
+      alert('Evento adicionado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao adicionar evento:', error.response ? error.response.data : error);
     }
-
-    const event = {
-      id: Math.random().toString(36).substr(2, 9),
-      title: title,
-      start: start,
-      end: endDate,
-      allDay: startTime ? false : true,
-      extendedProps: {
-        description: description,
-      },
-    };
-
-    const events = JSON.parse(localStorage.getItem('events')) || [];
-    events.push(event);
-    localStorage.setItem('events', JSON.stringify(events));
-
-    calendarRef.current.getApi().addEvent(event);
-    setOpenModal(false);
   };
-
-  const handleDeleteEvent = (event) => {
-    const events = JSON.parse(localStorage.getItem('events')) || [];
-    const updatedEvents = events.filter((e) => e.id !== event.id);
-    localStorage.setItem('events', JSON.stringify(updatedEvents));
-
-    event.remove(); // Remove o evento do calendário imediatamente
+  
+  const handleDeleteEvent = async (event) => {
+    // Obtém o token JWT do cookie usando js-cookie
+    const token = Cookies.get('auth_token');
+  
+    try {
+      // Envia uma requisição DELETE para o backend para remover o evento com base no `event.id`
+      const response = await axios.delete('http://localhost:3000/deletarEvento', {
+        data: { codigoCalendario: event.id }, // Passa o id do evento a ser excluído
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true, // Garante que os cookies sejam enviados
+      });
+  
+      console.log('Resposta do servidor:', response.data);
+  
+      // Remove o evento do calendário imediatamente
+      event.remove();
+  
+    } catch (error) {
+      console.error('Erro ao excluir evento:', error.response ? error.response.data : error);
+      alert('Erro ao excluir o evento. Por favor, tente novamente.');
+    }
+  };  
+ 
+  const fetchCalendario = async () => {
+    try {
+      setLoading(true);
+      const token = Cookies.get('auth_token');
+  
+      // Faz a requisição para buscar os eventos
+      const response = await axios.get('http://localhost:3000/getEventos', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
+  
+      // Atualiza o estado com os dados recebidos
+      setCalendario(response.data);
+  
+      // Adiciona cada evento ao calendário
+      if (calendarRef.current) {
+        const calendarApi = calendarRef.current.getApi();
+        // Limpa eventos anteriores para evitar duplicações
+        calendarApi.removeAllEvents();
+        // Adiciona os eventos retornados do servidor
+        response.data.forEach(event => {
+          calendarApi.addEvent({
+            id: event.codigoCalendario, 
+            title: event.titulo,
+            start: event.dataInicio,
+            end: event.dataTermino,
+            extendedProps: {
+              description: event.descricao,
+            },
+          });
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao buscar eventos: ', error);
+    } finally {
+      setLoading(false);
+    }
   };
-
+  
   useEffect(() => {
-    const events = JSON.parse(localStorage.getItem('events')) || [];
-    events.forEach((event) => {
-      calendarRef.current.getApi().addEvent(event);
-    });
-  }, []);
-
+    fetchCalendario();
+  }, []);  
+  
   const isOverTrash = (event) => {
     const trashRect = trashRef.current.getBoundingClientRect();
     const eventX = event.jsEvent.clientX;
@@ -87,11 +171,7 @@ const CalendarioMainContent = ({ isNavbarVisible }) => {
             editable={true}
             eventDurationEditable={true}
             eventStartEditable={true}
-            eventTimeFormat={{
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false,
-            }}
+
             eventMouseEnter={(arg) => {
               console.log(arg);
             }}
@@ -107,22 +187,10 @@ const CalendarioMainContent = ({ isNavbarVisible }) => {
               }
             }}
             eventDrop={(arg) => {
-              const events = JSON.parse(localStorage.getItem('events')) || [];
-              const index = events.findIndex((event) => event.id === arg.event.id);
-              if (index !== -1) {
-                events[index].start = arg.event.start;
-                events[index].end = arg.event.end;
-                localStorage.setItem('events', JSON.stringify(events));
-              }
+              // Adicione a lógica para atualizar o evento no banco de dados com base nos valores modificados.
             }}
             eventResize={(arg) => {
-              const events = JSON.parse(localStorage.getItem('events')) || [];
-              const index = events.findIndex((event) => event.id === arg.event.id);
-              if (index !== -1) {
-                events[index].start = arg.event.start;
-                events[index].end = arg.event.end;
-                localStorage.setItem('events', JSON.stringify(events));
-              }
+              // Adicione a lógica para atualizar o evento no banco de dados com base nos valores redimensionados.
             }}
             ref={(calendar) => (calendarRef.current = calendar)}
             className='calendar'
@@ -152,23 +220,31 @@ const CalendarioMainContent = ({ isNavbarVisible }) => {
           <ul className='event-inputs'>
             <li>
               <p>Título:</p>
-              <input type='text' value={title} onChange={(e) => setTitle(e.target.value)} />
+              <input type='text' 
+              name='titulo'
+              id='titulo'
+              onChange={(e) => setTitle(e.target.value)} />
             </li>
             <li>
               <p>Descrição:</p>
-              <input type='text' value={description} onChange={(e) => setDescription(e.target.value)} />
+              <input type='text' 
+              name='descricao'
+              id='descricao'
+              onChange={(e) => setDescription(e.target.value)} />
             </li>
             <li>
               <p>Data de início:</p>
-              <input type='date' value={date} onChange={(e) => setDate(e.target.value)} />
+              <input type='date'
+              name='dataInicio'
+              id='dataInicio'
+              onChange={(e) => setDate(e.target.value)} />
             </li>
             <li>
               <p>Data de término:</p>
-              <input type='date' value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-            </li>
-            <li>
-              <p>Hora de início:</p>
-              <input type='time' value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+              <input type='date' 
+              name='dataTermino'
+              id='dataTermino'
+              onChange={(e) => setEndDate(e.target.value)} />
             </li>
           </ul>
           <button className='create-event' onClick={handleAddEvent}>
